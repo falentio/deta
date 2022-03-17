@@ -32,7 +32,6 @@ export interface DetabaseQuery {
 
 export class DetabaseError extends Error {
 	response!: Response;
-	errors!: string[];
 }
 
 declare namespace DetabaseResponse {
@@ -85,7 +84,7 @@ export class Detabase<T extends Record<string, any>> {
 			init.body = JSON.stringify(body);
 		}
 		return fetch(url, init)
-			.then(async (res) => {
+			.then((res) => {
 				if (res.ok) {
 					return res.json();
 				}
@@ -93,8 +92,6 @@ export class Detabase<T extends Record<string, any>> {
 					"non 2xx http status code received",
 				);
 				err.response = res;
-				const json = await res.json();
-				err.errors = json.errors;
 				throw err;
 			});
 	}
