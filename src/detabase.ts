@@ -67,7 +67,7 @@ export class Detabase<T extends Record<string, any>> {
 	#apikey: string;
 
 	constructor({ projectId, baseName, apikey }: DetabaseOptions) {
-		this.baseUrl = `https://database.deta.sh/v1/${projectId}/${baseName}`;
+		this.baseUrl = `https://database.deta.sh/v1/${projectId}/${baseName}/`;
 		this.#apikey = apikey;
 	}
 	// deno-lint-ignore no-explicit-any
