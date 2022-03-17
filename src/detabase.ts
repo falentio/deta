@@ -32,7 +32,7 @@ export interface DetabaseQuery {
 
 export class DetabaseError extends Error {
 	response!: Response;
-	errors!: string[]
+	errors!: string[];
 }
 
 declare namespace DetabaseResponse {
@@ -85,7 +85,7 @@ export class Detabase<T extends Record<string, any>> {
 			init.body = JSON.stringify(body);
 		}
 		return fetch(url, init)
-			.then(async(res) => {
+			.then(async (res) => {
 				if (res.ok) {
 					return res.json();
 				}
@@ -93,8 +93,8 @@ export class Detabase<T extends Record<string, any>> {
 					"non 2xx http status code received",
 				);
 				err.response = res;
-				const json = await res.json()
-				err.errors = json.errors
+				const json = await res.json();
+				err.errors = json.errors;
 				throw err;
 			});
 	}
@@ -141,5 +141,45 @@ export class Detabase<T extends Record<string, any>> {
 	 */
 	query(query: DetabaseQuery): Promise<DetabaseResponse.Query<T>> {
 		return this.#request("quert", "POST", query);
+	}
+}
+
+export class DetabaseKV<T extends JSONValue> {
+	#db: Detabase<{
+		key: string;
+		value: T;
+	}>;
+	constructor(opts: DetabaseOptions) {
+		this.#db = new Detabase<{
+			key: string;
+			value: T;
+		}>(opts);
+	}
+
+	set(key: string, value: T): Promise<void> {
+		return this.#db
+			.put([{ key, value }])
+			.then(() => {});
+	}
+
+	get(key: string): Promise<T | null> {
+		return this.#db
+			.get(key)
+			.then((res) => res.value)
+			.catch((e: unknown) => {
+				if (!(e instanceof DetabaseError)) {
+					throw e;
+				}
+				if (e.response.status !== 404) {
+					throw e;
+				}
+				return null;
+			});
+	}
+
+	delete(key: string): Promise<void> {
+		return this.#db
+			.delete(key)
+			.then(() => {});
 	}
 }
