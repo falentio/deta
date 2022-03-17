@@ -163,13 +163,14 @@ export class DetabaseKV<T extends JSONValue> {
 		return this.#db
 			.get(key)
 			.then((res) => res.value)
-			.catch((e: unknown) => {
+			.catch(async (e: unknown) => {
 				if (!(e instanceof DetabaseError)) {
 					throw e;
 				}
 				if (e.response.status !== 404) {
 					throw e;
 				}
+				await e.response.arrayBuffer();
 				return null;
 			});
 	}
